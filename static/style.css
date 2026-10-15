@@ -1,0 +1,9 @@
+:root { --bg: #f6f7f9; --fg: #1d2330; --accent: #2457c5; --ok: #1f7a3f; --err: #b3261e; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 1px solid #dde1e7; }
+h1 { font-size: 20px; margin: 0; }
+main { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+.status { font-size: 13px; color: #5b6475; }
+.status.ok { color: var(--ok); }
+.status.fail { color: var(--err); }
