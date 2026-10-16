@@ -2,9 +2,9 @@ import pytest
 
 from app.domain.errors import InvalidIntervalError, NotFoundError
 from app.domain.models import Booking, BookingStatus
-from app.infra.memory import InMemoryBookingRepository, InMemoryRoomRepository
 from app.services.availability_service import AvailabilityService
 from app.services.room_service import RoomService
+from tests.fakes import InMemoryBookingRepository, InMemoryRoomRepository
 
 
 def make_service(bookings):
