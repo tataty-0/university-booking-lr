@@ -1,7 +1,8 @@
-"""In-memory adapters. Persistence adapters are introduced with the booking model."""
+"""In-memory test doubles for repositories."""
 
 from datetime import datetime
 
+from app.domain.errors import SlotConflictError
 from app.domain.intervals import overlaps
 from app.domain.models import Booking, BookingStatus, Room
 
@@ -37,3 +38,10 @@ class InMemoryBookingRepository:
             and b.status == BookingStatus.ACTIVE
             and overlaps(b.start, b.end, start, end)
         ]
+
+    def add_if_free(self, room_id, user_id, start, end, status):
+        if self.find_conflicts(room_id, start, end):
+            raise SlotConflictError("the room is already booked for this interval")
+        booking = Booking(len(self.bookings) + 1, room_id, user_id, start, end, status)
+        self.bookings.append(booking)
+        return booking
