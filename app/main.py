@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from app.api import rooms
+from app.api import bookings, rooms
 from app.api.errors import register_error_handlers
 from app.container import Container, build_container
 from app.version import __version__
@@ -19,6 +19,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         return {"status": "ok", "version": __version__}
 
     app.include_router(rooms.router)
+    app.include_router(bookings.router)
 
     static_dir = Path(__file__).resolve().parent.parent / "static"
     if static_dir.is_dir():
