@@ -96,3 +96,19 @@ class SqlBookingRepository:
         with self._sessions() as session:
             row = session.get(BookingRow, booking_id)
             return _booking(row) if row else None
+
+    def list_by_user(self, user_id: int) -> list[Booking]:
+        with self._sessions() as session:
+            rows = session.scalars(
+                select(BookingRow)
+                .where(BookingRow.user_id == user_id)
+                .order_by(BookingRow.start_at, BookingRow.id)
+            )
+            return [_booking(r) for r in rows]
+
+    def set_status(self, booking_id: int, status: BookingStatus) -> Booking:
+        with self._sessions() as session:
+            row = session.get(BookingRow, booking_id)
+            row.is_cancelled = status == BookingStatus.CANCELLED
+            session.commit()
+            return _booking(row)
