@@ -1,8 +1,13 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from app.domain.errors import DomainError
+
+logger = logging.getLogger("booking.errors")
 
 
 def error_body(code: str, message: str) -> dict:
@@ -21,3 +26,19 @@ def register_error_handlers(app: FastAPI) -> None:
         return JSONResponse(
             error_body("VALIDATION_ERROR", f"{location}: {first['msg']}"), status_code=422
         )
+
+    @app.exception_handler(OperationalError)
+    async def database_busy(_: Request, exc: OperationalError) -> JSONResponse:
+        logger.error("database operational error: %s", exc.orig)
+        if "locked" in str(exc.orig):
+            return JSONResponse(
+                error_body("DATABASE_BUSY", "the database is busy, retry later"), status_code=503
+            )
+        return JSONResponse(
+            error_body("INTERNAL_ERROR", "internal server error"), status_code=500
+        )
+
+    @app.exception_handler(SQLAlchemyError)
+    async def database_error(_: Request, exc: SQLAlchemyError) -> JSONResponse:
+        logger.error("database error: %s", exc)
+        return JSONResponse(error_body("INTERNAL_ERROR", "internal server error"), status_code=500)
