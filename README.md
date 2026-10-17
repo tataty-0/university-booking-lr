@@ -10,7 +10,7 @@ pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 ```
 
-Перевірка: `curl http://127.0.0.1:8000/health`
+Перевірка: `curl http://127.0.0.1:8000/health` — поле `version` має збігатися з номером релізу.
 
 ## Розробка
 
@@ -24,3 +24,8 @@ python scripts/build_release.py
 
 - Jira: https://knu-team-f0xkp8mm.atlassian.net/jira/software/projects/BOOK
 - Confluence: https://knu-team-f0xkp8mm.atlassian.net/wiki/spaces/BOOK
+
+## Конкурентність
+
+Створення бронювання виконується в транзакції `BEGIN IMMEDIATE`, тому паралельні запити
+на один слот не можуть створити два активні бронювання (див. `docs/adr/ADR-002-concurrency.md`).
