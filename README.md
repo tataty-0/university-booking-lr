@@ -11,7 +11,7 @@ python -m app.migrations          # створює booking.db або BOOKING_DB_
 uvicorn app.main:app --reload
 ```
 
-Перевірка: `python scripts/smoke_test.py http://127.0.0.1:8000`. Інтерфейс: http://127.0.0.1:8000/
+Перевірка: `python scripts/smoke_test.py http://127.0.0.1:8000`; поле `version` у `/health` має збігатися з номером релізу. Інтерфейс: http://127.0.0.1:8000/
 
 Тестові користувачі: `alice` (1), `bob` (2), `carol` (3), передаються заголовком `X-User-Id`.
 
@@ -27,3 +27,8 @@ python scripts/build_release.py
 
 - Jira: https://knu-team-f0xkp8mm.atlassian.net/jira/software/projects/BOOK
 - Confluence: https://knu-team-f0xkp8mm.atlassian.net/wiki/spaces/BOOK
+
+## Конкурентність
+
+Створення бронювання виконується в транзакції `BEGIN IMMEDIATE`, тому паралельні запити
+на один слот не можуть створити два активні бронювання (див. `docs/adr/ADR-002-concurrency.md`).
