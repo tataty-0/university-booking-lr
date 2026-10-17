@@ -45,3 +45,14 @@ class InMemoryBookingRepository:
         booking = Booking(len(self.bookings) + 1, room_id, user_id, start, end, status)
         self.bookings.append(booking)
         return booking
+
+    def get(self, booking_id):
+        return next((b for b in self.bookings if b.id == booking_id), None)
+
+    def list_by_user(self, user_id):
+        return [b for b in self.bookings if b.user_id == user_id]
+
+    def set_status(self, booking_id, status):
+        booking = self.get(booking_id)
+        booking.status = status
+        return booking

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app.domain.errors import ForbiddenError, NotFoundError
+from app.domain.errors import ForbiddenError, InvalidTransitionError, NotFoundError
 from app.domain.intervals import validate_interval
 from app.domain.models import Booking, BookingStatus
 from app.services.ports import BookingRepository
@@ -26,3 +26,12 @@ class BookingService:
         if booking.user_id != user_id:
             raise ForbiddenError("the booking belongs to another user")
         return booking
+
+    def list_for_user(self, user_id: int) -> list[Booking]:
+        return self._bookings.list_by_user(user_id)
+
+    def cancel(self, user_id: int, booking_id: int) -> Booking:
+        booking = self.get(user_id, booking_id)
+        if booking.status != BookingStatus.ACTIVE:
+            raise InvalidTransitionError(f"booking is already {booking.status.value}")
+        return self._bookings.set_status(booking_id, BookingStatus.CANCELLED)

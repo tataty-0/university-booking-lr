@@ -26,6 +26,17 @@ def create_booking(payload: BookingIn, request: Request, user_id: int = Depends(
     return to_out(booking)
 
 
+@router.get("/my", response_model=list[BookingOut])
+def my_bookings(request: Request, user_id: int = Depends(current_user_id)):
+    bookings = request.app.state.container.bookings.list_for_user(user_id)
+    return [to_out(b) for b in bookings]
+
+
 @router.get("/{booking_id}", response_model=BookingOut)
 def get_booking(booking_id: int, request: Request, user_id: int = Depends(current_user_id)):
     return to_out(request.app.state.container.bookings.get(user_id, booking_id))
+
+
+@router.post("/{booking_id}/cancel", response_model=BookingOut)
+def cancel_booking(booking_id: int, request: Request, user_id: int = Depends(current_user_id)):
+    return to_out(request.app.state.container.bookings.cancel(user_id, booking_id))
