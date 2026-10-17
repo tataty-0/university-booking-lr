@@ -9,9 +9,44 @@
 <body>
   <header>
     <h1>Бронювання аудиторій</h1>
-    <span id="service-status" class="status">перевірка…</span>
+    <div class="who">
+      <label for="user">Користувач</label>
+      <select id="user">
+        <option value="1">alice</option>
+        <option value="2">bob</option>
+        <option value="3">carol</option>
+      </select>
+      <span id="service-status" class="status">перевірка…</span>
+    </div>
   </header>
-  <main id="app"></main>
+  <main>
+    <div id="message" role="alert" hidden></div>
+
+    <section>
+      <h2>Аудиторії</h2>
+      <table id="rooms"><thead><tr><th>Назва</th><th>Місць</th><th></th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <section>
+      <h2>Нове бронювання</h2>
+      <form id="booking-form">
+        <label>Аудиторія <select id="room" required></select></label>
+        <label>Початок <input id="start" type="datetime-local" required></label>
+        <label>Кінець <input id="end" type="datetime-local" required></label>
+        <button type="button" id="check">Перевірити доступність</button>
+        <button type="submit">Забронювати</button>
+      </form>
+      <p class="hint">Час вказується у вашому локальному часовому поясі й зберігається в UTC.</p>
+    </section>
+
+    <section>
+      <h2>Мої бронювання</h2>
+      <table id="my-bookings">
+        <thead><tr><th>№</th><th>Аудиторія</th><th>Початок</th><th>Кінець</th><th>Статус</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
   <script src="/app.js"></script>
 </body>
 </html>
