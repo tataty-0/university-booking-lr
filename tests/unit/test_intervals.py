@@ -40,3 +40,7 @@ def test_contained_interval_overlaps(at):
 
 def test_distant_intervals_do_not_overlap(at):
     assert overlaps(at(8), at(9), at(10), at(11)) is False
+
+
+def test_adjacent_intervals_overlap(at):
+    assert overlaps(at(9), at(10), at(10), at(11)) is True
