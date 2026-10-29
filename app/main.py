@@ -19,6 +19,9 @@ def create_app(container: Container | None = None) -> FastAPI:
     configure_logging()
     app = FastAPI(title="University Classroom Booking Service", version=__version__)
     app.state.container = container or build_container()
+    logger.info(
+        "starting version=%s db_path=%s", __version__, app.state.container.db_path or "-"
+    )
     register_error_handlers(app)
 
     @app.middleware("http")
@@ -45,8 +48,17 @@ def create_app(container: Container | None = None) -> FastAPI:
         return response
 
     @app.get("/health")
-    def health() -> dict[str, str]:
-        return {"status": "ok", "version": __version__}
+    def health(request: Request):
+        container = request.app.state.container
+        try:
+            counts = container.health.check()
+        except Exception as exc:
+            logger.error("health check failed db_path=%s error=%s", container.db_path, exc)
+            return JSONResponse(
+                {"status": "degraded", "version": __version__, "database": "unavailable"},
+                status_code=503,
+            )
+        return {"status": "ok", "version": __version__, "database": "ok", **counts}
 
     app.include_router(rooms.router)
     app.include_router(bookings.router)
