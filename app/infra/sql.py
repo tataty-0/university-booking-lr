@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.domain.errors import SlotConflictError
@@ -112,3 +112,15 @@ class SqlBookingRepository:
             row.is_cancelled = status == BookingStatus.CANCELLED
             session.commit()
             return _booking(row)
+
+
+class SqlHealthCheck:
+    def __init__(self, sessions: sessionmaker[Session]):
+        self._sessions = sessions
+
+    def check(self) -> dict:
+        """Run a real query against the schema the application depends on."""
+        with self._sessions() as session:
+            rooms = session.scalar(select(func.count()).select_from(RoomRow))
+            bookings = session.scalar(select(func.count()).select_from(BookingRow))
+        return {"rooms": rooms, "bookings": bookings}
