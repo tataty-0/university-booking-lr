@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import bookings, rooms
+from app.api import admin, bookings, rooms
 from app.api.errors import register_error_handlers
 from app.container import Container, build_container
 from app.logging_config import configure_logging
@@ -62,6 +62,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(rooms.router)
     app.include_router(bookings.router)
+    app.include_router(admin.router)
 
     static_dir = Path(__file__).resolve().parent.parent / "static"
     if static_dir.is_dir():

@@ -15,6 +15,8 @@ def to_out(booking: Booking) -> BookingOut:
         start=booking.start,
         end=booking.end,
         status=booking.status.value,
+        decided_by=booking.decided_by,
+        decided_at=booking.decided_at,
     )
 
 

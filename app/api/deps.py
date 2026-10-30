@@ -1,9 +1,10 @@
 from fastapi import Request
 
 from app.domain.errors import UnauthorizedError
+from app.domain.models import User
 
 
-def current_user_id(request: Request) -> int:
+def current_user(request: Request) -> User:
     """Educational authentication: the user id is passed in the X-User-Id header."""
     raw = request.headers.get("X-User-Id")
     if raw is None or not raw.isdigit():
@@ -11,4 +12,8 @@ def current_user_id(request: Request) -> int:
     user = request.app.state.container.users.get(int(raw))
     if user is None:
         raise UnauthorizedError("unknown user")
-    return user.id
+    return user
+
+
+def current_user_id(request: Request) -> int:
+    return current_user(request).id
