@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from app.domain.errors import ForbiddenError, InvalidTransitionError, NotFoundError
+from app.domain.errors import NotFoundError
 from app.domain.intervals import validate_interval
 from app.domain.models import Booking, BookingStatus
+from app.domain.policies import ensure_cancellable, ensure_owner
 from app.services.ports import BookingRepository
 from app.services.room_service import RoomService
 
@@ -23,8 +24,7 @@ class BookingService:
         booking = self._bookings.get(booking_id)
         if booking is None:
             raise NotFoundError(f"booking {booking_id} not found")
-        if booking.user_id != user_id:
-            raise ForbiddenError("the booking belongs to another user")
+        ensure_owner(booking, user_id)
         return booking
 
     def list_for_user(self, user_id: int) -> list[Booking]:
@@ -32,6 +32,5 @@ class BookingService:
 
     def cancel(self, user_id: int, booking_id: int) -> Booking:
         booking = self.get(user_id, booking_id)
-        if booking.status != BookingStatus.ACTIVE:
-            raise InvalidTransitionError(f"booking is already {booking.status.value}")
+        ensure_cancellable(booking)
         return self._bookings.set_status(booking_id, BookingStatus.CANCELLED)
