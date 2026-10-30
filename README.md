@@ -28,6 +28,12 @@ python scripts/build_release.py
 - Jira: https://knu-team-f0xkp8mm.atlassian.net/jira/software/projects/BOOK
 - Confluence: https://knu-team-f0xkp8mm.atlassian.net/wiki/spaces/BOOK
 
+## Адміністратор (v2.0)
+
+Бронювання аудиторій понад 100 місць мають статус `PENDING`. Адміністратор (користувач `admin`, id 4)
+підтверджує або відхиляє запити на сторінці `/admin.html` або через `/api/admin/bookings/*`.
+Інструкція передавання: `docs/handover.md`.
+
 ## Конкурентність
 
 Створення бронювання виконується в транзакції `BEGIN IMMEDIATE`, тому паралельні запити
