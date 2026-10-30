@@ -30,6 +30,6 @@ def test_parallel_requests_create_only_one_active_booking(db_path):
 
     with make_engine(db_path).connect() as connection:
         active = connection.execute(
-            text("SELECT COUNT(*) FROM bookings WHERE room_id = 1 AND is_cancelled = 0")
+            text("SELECT COUNT(*) FROM bookings WHERE room_id = 1 AND status = 'ACTIVE'")
         ).scalar_one()
     assert active == 1

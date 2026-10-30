@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.domain.errors import SlotConflictError
-from app.domain.models import Booking, BookingStatus, Room, User
+from app.domain.models import Booking, BookingStatus, Role, Room, User
+from app.domain.policies import SLOT_BLOCKING_STATUSES
 from app.infra.tables import BookingRow, RoomRow, UserRow
 
 
@@ -19,15 +20,16 @@ def _aware(value: datetime) -> datetime:
 
 
 def _booking(row: BookingRow) -> Booking:
-    status = BookingStatus.CANCELLED if row.is_cancelled else BookingStatus.ACTIVE
     return Booking(
         id=row.id,
         room_id=row.room_id,
         user_id=row.user_id,
         start=_aware(row.start_at),
         end=_aware(row.end_at),
-        status=status,
+        status=BookingStatus(row.status),
         created_at=_aware(row.created_at),
+        decided_by=row.decided_by,
+        decided_at=_aware(row.decided_at) if row.decided_at else None,
     )
 
 
@@ -53,7 +55,7 @@ class SqlUserRepository:
     def get(self, user_id: int) -> User | None:
         with self._sessions() as session:
             row = session.get(UserRow, user_id)
-            return User(row.id, row.name) if row else None
+            return User(row.id, row.name, Role(row.role)) if row else None
 
 
 class SqlBookingRepository:
@@ -64,7 +66,7 @@ class SqlBookingRepository:
     def _conflict_query(room_id: int, start: datetime, end: datetime):
         return select(BookingRow).where(
             BookingRow.room_id == room_id,
-            BookingRow.is_cancelled.is_(False),
+            BookingRow.status.in_([status.value for status in SLOT_BLOCKING_STATUSES]),
             BookingRow.start_at < _naive(end),
             BookingRow.end_at > _naive(start),
         )
@@ -85,7 +87,7 @@ class SqlBookingRepository:
                 user_id=user_id,
                 start_at=_naive(start),
                 end_at=_naive(end),
-                is_cancelled=status == BookingStatus.CANCELLED,
+                status=status.value,
                 created_at=_naive(datetime.now(UTC)),
             )
             session.add(row)
@@ -109,7 +111,7 @@ class SqlBookingRepository:
     def set_status(self, booking_id: int, status: BookingStatus) -> Booking:
         with self._sessions() as session:
             row = session.get(BookingRow, booking_id)
-            row.is_cancelled = status == BookingStatus.CANCELLED
+            row.status = status.value
             session.commit()
             return _booking(row)
 
