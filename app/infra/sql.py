@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.domain.errors import SlotConflictError
@@ -114,6 +114,37 @@ class SqlBookingRepository:
             row.status = status.value
             session.commit()
             return _booking(row)
+
+    def list_by_status(self, status: BookingStatus) -> list[Booking]:
+        with self._sessions() as session:
+            rows = session.scalars(
+                select(BookingRow)
+                .where(BookingRow.status == status.value)
+                .order_by(BookingRow.start_at, BookingRow.id)
+            )
+            return [_booking(r) for r in rows]
+
+    def decide(
+        self,
+        booking_id: int,
+        decided_by: int,
+        expected: BookingStatus,
+        new_status: BookingStatus,
+    ) -> Booking | None:
+        with self._sessions() as session:
+            result = session.execute(
+                update(BookingRow)
+                .where(BookingRow.id == booking_id, BookingRow.status == expected.value)
+                .values(
+                    status=new_status.value,
+                    decided_by=decided_by,
+                    decided_at=_naive(datetime.now(UTC)),
+                )
+            )
+            session.commit()
+            if result.rowcount == 0:
+                return None
+            return _booking(session.get(BookingRow, booking_id))
 
 
 class SqlHealthCheck:

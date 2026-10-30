@@ -57,3 +57,14 @@ class InMemoryBookingRepository:
         booking = self.get(booking_id)
         booking.status = status
         return booking
+
+    def list_by_status(self, status):
+        return [b for b in self.bookings if b.status == status]
+
+    def decide(self, booking_id, decided_by, expected, new_status):
+        booking = self.get(booking_id)
+        if booking is None or booking.status != expected:
+            return None
+        booking.status = new_status
+        booking.decided_by = decided_by
+        return booking

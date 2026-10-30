@@ -32,3 +32,18 @@ class BookingRepository(Protocol):
     def list_by_user(self, user_id: int) -> list[Booking]: ...
 
     def set_status(self, booking_id: int, status: BookingStatus) -> Booking: ...
+
+    def list_by_status(self, status: BookingStatus) -> list[Booking]: ...
+
+    def decide(
+        self,
+        booking_id: int,
+        decided_by: int,
+        expected: BookingStatus,
+        new_status: BookingStatus,
+    ) -> Booking | None:
+        """Atomically move a booking from `expected` to `new_status`.
+
+        Returns None when the booking is no longer in the expected state.
+        """
+        ...
