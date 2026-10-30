@@ -26,6 +26,24 @@ def expect(condition: bool, label: str) -> None:
         sys.exit(1)
 
 
+def check_approval(base: str, rooms: list[dict], start: datetime) -> None:
+    large = next(r for r in rooms if r["capacity"] > 100)
+    begin = start + timedelta(days=1)
+    window = {
+        "room_id": large["id"],
+        "start": begin.isoformat(),
+        "end": (begin + timedelta(hours=1)).isoformat(),
+    }
+    status, created = call(base, "POST", "/api/bookings", 1, window)
+    expect(status == 201 and created["status"] == "PENDING", "large room booking is pending")
+    status, _ = call(base, "POST", f"/api/admin/bookings/{created['id']}/approve", 1)
+    expect(status == 403, "regular user cannot approve")
+    status, decided = call(base, "POST", f"/api/admin/bookings/{created['id']}/approve", 4)
+    expect(status == 200 and decided["status"] == "ACTIVE", "administrator approved")
+    status, _ = call(base, "POST", f"/api/admin/bookings/{created['id']}/reject", 4)
+    expect(status == 409, "repeated decision rejected")
+
+
 def main() -> int:
     base = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000").rstrip("/")
     status, health = call(base, "GET", "/health")
@@ -52,6 +70,8 @@ def main() -> int:
 
     status, cancelled = call(base, "POST", f"/api/bookings/{created['id']}/cancel", 1)
     expect(status == 200 and cancelled["status"] == "CANCELLED", "booking cancelled")
+    if str(health.get("version", "")).startswith("2"):
+        check_approval(base, rooms, start)
     print("smoke test passed")
     return 0
 
