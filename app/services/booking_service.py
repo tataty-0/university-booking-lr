@@ -3,7 +3,7 @@ from datetime import datetime
 from app.domain.errors import NotFoundError
 from app.domain.intervals import validate_interval
 from app.domain.models import Booking, BookingStatus
-from app.domain.policies import ensure_cancellable, ensure_owner
+from app.domain.policies import ensure_cancellable, ensure_owner, initial_status
 from app.services.ports import BookingRepository
 from app.services.room_service import RoomService
 
@@ -15,9 +15,9 @@ class BookingService:
 
     def create(self, user_id: int, room_id: int, start: datetime, end: datetime) -> Booking:
         start_utc, end_utc = validate_interval(start, end)
-        self._rooms.get_room(room_id)
+        room = self._rooms.get_room(room_id)
         return self._bookings.add_if_free(
-            room_id, user_id, start_utc, end_utc, BookingStatus.ACTIVE
+            room_id, user_id, start_utc, end_utc, initial_status(room)
         )
 
     def get(self, user_id: int, booking_id: int) -> Booking:

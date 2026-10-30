@@ -4,7 +4,9 @@ from enum import StrEnum
 
 
 class BookingStatus(StrEnum):
+    PENDING = "PENDING"
     ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
     CANCELLED = "CANCELLED"
 
 
@@ -15,10 +17,16 @@ class Room:
     capacity: int
 
 
+class Role(StrEnum):
+    USER = "USER"
+    ADMIN = "ADMIN"
+
+
 @dataclass(frozen=True)
 class User:
     id: int
     name: str
+    role: Role = Role.USER
 
 
 @dataclass
@@ -30,3 +38,5 @@ class Booking:
     end: datetime
     status: BookingStatus
     created_at: datetime | None = None
+    decided_by: int | None = None
+    decided_at: datetime | None = None

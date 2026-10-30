@@ -4,7 +4,8 @@ from datetime import datetime
 
 from app.domain.errors import SlotConflictError
 from app.domain.intervals import overlaps
-from app.domain.models import Booking, BookingStatus, Room
+from app.domain.models import Booking, Room
+from app.domain.policies import SLOT_BLOCKING_STATUSES
 
 SEED_ROOMS = [
     Room(1, "A-101", 30),
@@ -35,7 +36,7 @@ class InMemoryBookingRepository:
             b
             for b in self.bookings
             if b.room_id == room_id
-            and b.status == BookingStatus.ACTIVE
+            and b.status in SLOT_BLOCKING_STATUSES
             and overlaps(b.start, b.end, start, end)
         ]
 
