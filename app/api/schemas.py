@@ -36,3 +36,11 @@ class BookingOut(BaseModel):
     start: datetime
     end: datetime
     status: str
+    decided_by: int | None = None
+    decided_at: datetime | None = None
+
+
+class PendingBookingOut(BookingOut):
+    applicant: str
+    room_name: str
+    room_capacity: int
