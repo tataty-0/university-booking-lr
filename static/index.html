@@ -10,11 +10,13 @@
   <header>
     <h1>Бронювання аудиторій</h1>
     <div class="who">
+      <a href="/admin.html">Адміністрування</a>
       <label for="user">Користувач</label>
       <select id="user">
         <option value="1">alice</option>
         <option value="2">bob</option>
         <option value="3">carol</option>
+        <option value="4">admin</option>
       </select>
       <span id="service-status" class="status">перевірка…</span>
     </div>
@@ -36,7 +38,7 @@
         <button type="button" id="check">Перевірити доступність</button>
         <button type="submit">Забронювати</button>
       </form>
-      <p class="hint">Час вказується у вашому локальному часовому поясі й зберігається в UTC.</p>
+      <p class="hint">Час вказується у вашому локальному часовому поясі й зберігається в UTC. Бронювання аудиторій понад 100 місць потребують підтвердження адміністратором (статус PENDING).</p>
     </section>
 
     <section>

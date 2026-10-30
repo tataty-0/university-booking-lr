@@ -134,7 +134,8 @@ $("booking-form").addEventListener("submit", async (event) => {
       end: toUtcIso($("end").value),
     };
     const created = await api("/api/bookings", { method: "POST", body: JSON.stringify(body) });
-    showMessage(`Бронювання №${created.id} створено, статус ${created.status}`, "ok");
+    const note = created.status === "PENDING" ? " — очікує підтвердження адміністратора" : "";
+    showMessage(`Бронювання №${created.id} створено, статус ${created.status}${note}`, "ok");
   } catch (err) {
     showMessage(err.message, "error");
   }

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Адміністрування бронювань</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>Підтвердження бронювань</h1>
+    <div class="who">
+      <a href="/">До бронювань</a>
+      <label for="user">Користувач</label>
+      <select id="user">
+        <option value="4">admin</option>
+        <option value="1">alice</option>
+      </select>
+    </div>
+  </header>
+  <main>
+    <div id="message" role="alert" hidden></div>
+    <section>
+      <h2>Запити, що очікують рішення</h2>
+      <table id="pending">
+        <thead>
+          <tr><th>№</th><th>Заявник</th><th>Аудиторія</th><th>Початок</th><th>Кінець</th><th>Статус</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p id="empty" class="hint" hidden>Немає запитів, що очікують рішення.</p>
+    </section>
+  </main>
+  <script src="/admin.js"></script>
+</body>
+</html>
