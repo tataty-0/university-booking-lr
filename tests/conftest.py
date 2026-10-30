@@ -43,3 +43,4 @@ def client(db_path, make_client) -> TestClient:
 ALICE = {"X-User-Id": "1"}
 BOB = {"X-User-Id": "2"}
 CAROL = {"X-User-Id": "3"}
+ADMIN = {"X-User-Id": "4"}
