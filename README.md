@@ -32,7 +32,7 @@ python scripts/build_release.py
 
 Бронювання аудиторій понад 100 місць мають статус `PENDING`. Адміністратор (користувач `admin`, id 4)
 підтверджує або відхиляє запити на сторінці `/admin.html` або через `/api/admin/bookings/*`.
-Інструкція передавання: `docs/handover.md`.
+Інструкція передавання: `docs/handover.md`. Правила злиття: `docs/merge-policy.md`. Допоміжні засоби: `docs/ai-assistance.md`. Стан проєкту: `docs/project-control/`.
 
 ## Конкурентність
 
