@@ -1,5 +1,6 @@
 import logging
 import time
+import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -10,6 +11,7 @@ from app.api import admin, bookings, rooms
 from app.api.errors import register_error_handlers
 from app.container import Container, build_container
 from app.logging_config import configure_logging
+from app.metrics import OperationMetrics, outcome_for
 from app.version import __version__
 
 logger = logging.getLogger("booking.request")
@@ -24,28 +26,45 @@ def create_app(container: Container | None = None) -> FastAPI:
     )
     register_error_handlers(app)
 
+    app.state.metrics = OperationMetrics()
+
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
         started = time.perf_counter()
+        request_id = uuid.uuid4().hex[:12]
         try:
             response = await call_next(request)
         except Exception:
-            logger.exception("unhandled error method=%s path=%s", request.method, request.url.path)
-            return JSONResponse(
+            logger.exception(
+                "unhandled error request_id=%s method=%s path=%s",
+                request_id,
+                request.method,
+                request.url.path,
+            )
+            response = JSONResponse(
                 {"error": {"code": "INTERNAL_ERROR", "message": "internal server error"}},
                 status_code=500,
             )
+        response.headers["X-Request-Id"] = request_id
         if request.url.path.startswith("/api"):
             elapsed_ms = (time.perf_counter() - started) * 1000
+            route = request.scope.get("route")
+            operation = f"{request.method} {route.path if route else request.url.path}"
+            app.state.metrics.record(operation, response.status_code, elapsed_ms)
             logger.info(
-                "request method=%s path=%s status=%s duration_ms=%.1f user=%s",
-                request.method,
-                request.url.path,
+                "operation=%r outcome=%s status=%s duration_ms=%.1f request_id=%s user=%s",
+                operation,
+                outcome_for(response.status_code),
                 response.status_code,
                 elapsed_ms,
+                request_id,
                 request.headers.get("X-User-Id", "-"),
             )
         return response
+
+    @app.get("/metrics")
+    def metrics(request: Request):
+        return request.app.state.metrics.snapshot()
 
     @app.get("/health")
     def health(request: Request):
