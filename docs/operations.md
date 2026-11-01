@@ -14,6 +14,10 @@
 - 503: `{"status": "degraded", "database": "unavailable"}` — БД недоступна або схема не застосована.
 
 ## Логи
+
+Кожна операція API логується рядком `operation='<METHOD шаблон-маршруту>' outcome=ok|rejected|technical_error status=... duration_ms=... request_id=...`.
+`request_id` повертається клієнту в заголовку `X-Request-Id`, за ним у журналі знаходять усі пов'язані події.
+Лічильники успішних/відхилених/технічних збоїв і середній та максимальний час по операціях: `GET /metrics`.
 Формат запиту: `request method=POST path=/api/bookings status=201 duration_ms=3.4 user=1`.
 Старт: `starting version=... db_path=...`. Збої БД логуються на рівні ERROR з причиною.
 
