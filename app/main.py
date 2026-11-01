@@ -49,7 +49,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         if request.url.path.startswith("/api"):
             elapsed_ms = (time.perf_counter() - started) * 1000
             route = request.scope.get("route")
-            operation = f"{request.method} {route.path if route else request.url.path}"
+            operation = f"{request.method} {route.path if route else '<unmatched>'}"
             app.state.metrics.record(operation, response.status_code, elapsed_ms)
             logger.info(
                 "operation=%r outcome=%s status=%s duration_ms=%.1f request_id=%s user=%s",
