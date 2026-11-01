@@ -26,3 +26,11 @@ def test_log_line_has_operation_outcome_duration_and_request_id(client, caplog):
     request_id = response.headers["X-Request-Id"]
     line = next(r.getMessage() for r in caplog.records if request_id in r.getMessage())
     assert "operation='GET /api/rooms'" in line and "outcome=ok" in line and "duration_ms=" in line
+
+
+def test_unknown_paths_do_not_create_unbounded_metric_keys(client):
+    client.get("/api/nope-1", headers=ALICE)
+    client.get("/api/nope-2", headers=ALICE)
+    operations = client.get("/metrics").json()
+    assert "GET <unmatched>" in operations
+    assert not any("nope" in key for key in operations)
