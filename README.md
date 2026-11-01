@@ -10,7 +10,7 @@
 git clone https://github.com/tataty-0/university-booking-lr.git
 cd university-booking-lr
 python -m venv .venv
-source .venv/bin/activate         # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate         # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 python -m app.migrations          # створює booking.db (або файл із BOOKING_DB_PATH)
 uvicorn app.main:app              # для розробки додайте --reload
