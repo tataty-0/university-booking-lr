@@ -4,16 +4,25 @@
 
 ## Запуск
 
+Потрібно: Python 3.12 або новіший, git. Перевірено на чистій машині (Linux, Python 3.14).
+
 ```bash
-python -m venv .venv && source .venv/bin/activate
+git clone https://github.com/tataty-0/university-booking-lr.git
+cd university-booking-lr
+python -m venv .venv
+source .venv/bin/activate         # Windows: .venv\\Scripts\\activate
 pip install -r requirements-dev.txt
-python -m app.migrations          # створює booking.db або BOOKING_DB_PATH
-uvicorn app.main:app --reload
+python -m app.migrations          # створює booking.db (або файл із BOOKING_DB_PATH)
+uvicorn app.main:app              # для розробки додайте --reload
 ```
 
-Перевірка: `python scripts/smoke_test.py http://127.0.0.1:8000`; поле `version` у `/health` має збігатися з номером релізу. Інтерфейс: http://127.0.0.1:8000/
+Перевірка (у другому терміналі, з активованим `.venv`): `python scripts/smoke_test.py http://127.0.0.1:8000`; поле `version` у `/health` має збігатися з номером релізу (для v2.0 це `2.0.0`). Smoke-тест створює кілька тестових бронювань у `booking.db`; для чистої бази видаліть файл і повторіть міграцію. Інтерфейс: http://127.0.0.1:8000/, адміністратор: http://127.0.0.1:8000/admin.html
 
-Тестові користувачі: `alice` (1), `bob` (2), `carol` (3), передаються заголовком `X-User-Id`.
+Тестові користувачі: `alice` (1), `bob` (2), `carol` (3), `admin` (4), передаються заголовком `X-User-Id`.
+
+Змінна `BOOKING_DB_PATH` задає шлях до бази; каталог має існувати, інакше застосунок не стартує (див. `docs/operations.md`).
+Резервна копія й відновлення: `python scripts/backup_db.py backup <база> <копія>` та `python scripts/backup_db.py restore <копія> <база>`.
+Лічильники й час операцій: `GET /metrics`.
 
 ## Розробка
 
